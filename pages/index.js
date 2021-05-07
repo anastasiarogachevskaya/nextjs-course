@@ -1,11 +1,12 @@
 // Path - /
+import { getFeaturedEvents } from '../dummy-data';
+import EventList from '../components/events/EventList';
 
 function HomePage() {
+  const featuredEvents = getFeaturedEvents();
   return(
     <div>
-      Welcome!
-      Starting Page
-      shows featured events
+      <EventList events={featuredEvents} />
     </div>
   )
 }
