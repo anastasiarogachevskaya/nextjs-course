@@ -1,6 +1,6 @@
 // Path - /events/...slug
 
-function EventsListingPage() {
+const EventsListingPage = () => {
   return(
     <div>
       Filtered Events Page
