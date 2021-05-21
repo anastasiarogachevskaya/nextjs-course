@@ -1,11 +1,42 @@
+import fs from 'fs';
+import path from 'path';
+import Link from 'next/Link';
+
 function HomePage(props) {
+  const { products } = props;
+
   return (
     <ul>
-      <li>Product 1</li>
-      <li>Product 2</li>
-      <li>Product 3</li>
+      {products.map((product) => (
+        <li key={product.id}><Link href={`/${product.id}`}>{product.title}</Link></li>
+      ))}
     </ul>
   );
+}
+
+export async function getStaticProps() {
+  const filePath = path.join(process.cwd(), 'data', 'dummy-backend.json');
+  const jsonData = fs.readFileSync(filePath );
+  const data = JSON.parse(jsonData);
+
+  if(!data) {
+    return { 
+      redirect: {
+        destination: '/no-data',
+      }
+    }
+  }
+
+  if (data.products.length === 0) {
+    return { notFound: true };
+  }
+  return { 
+    props: {
+      products: data.products,
+    },
+    revalidate: 10,
+    // notFound: true,
+  };
 }
 
 export default HomePage;
