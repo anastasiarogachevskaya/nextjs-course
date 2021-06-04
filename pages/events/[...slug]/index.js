@@ -14,9 +14,17 @@ const FilteredEventsPage = () => {
 
   const filterData = router.query.slug;
 
+  let pageHead = (
+    <Head>
+      <title>Filtered Events| NextJS Events</title>
+      <meta name="description" content={`All available events for the`} />
+    </Head>
+  );
+
   const { data, error } = useSWR(
     'https://next-js-events-project-default-rtdb.europe-west1.firebasedatabase.app/evetns.json'
   );
+
 
   useEffect(() => {
     if (data) {
@@ -34,8 +42,12 @@ const FilteredEventsPage = () => {
   }, [data]);
 
   if (!loadedEvents) {
-    return <p className='center'>Loading...</p>;
-  }
+    return (
+      <>
+        {pageHead}
+        <p className='center'>Loading...</p>
+      </>
+    )}
 
   const filteredYear = filterData[0];
   const filteredMonth = filterData[1];
@@ -54,6 +66,7 @@ const FilteredEventsPage = () => {
   ) {
     return (
       <Fragment>
+        {pageHead}
         <ErrorAlert>
           <p>Invalid filter. Please adjust your values!</p>
         </ErrorAlert>
@@ -77,6 +90,7 @@ const FilteredEventsPage = () => {
   if (!filteredEvents || filteredEvents.length === 0) {
     return (
       <Fragment>
+        {pageHead}
         <ErrorAlert>
           <p>No events found for the chosen filter!</p>
         </ErrorAlert>
@@ -91,10 +105,7 @@ const FilteredEventsPage = () => {
 
   return (
     <Fragment>
-      <Head>
-        <title>{numMonth}/{numYear} | NextJS Events</title>
-        <meta name="description" content={`All available events for the ${numMonth}/${numYear}`} />
-      </Head>
+      {pageHead}
       <ResultsTitle date={date} />
       <EventList events={filteredEvents} />
     </Fragment>
