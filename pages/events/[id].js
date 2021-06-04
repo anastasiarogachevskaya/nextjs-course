@@ -1,5 +1,5 @@
 // Path - /events/[id]
-import { useRouter } from 'next/router';
+import Head from 'next/head';
 import { Fragment } from 'react';
 import { getEventById, getAllEvents } from '../../helpers/apiUtil';
 import EventSummary from '../../components/singleEvent/EventSummary';
@@ -18,6 +18,10 @@ const EventIDPage = ({ event }) => {
 
   return(
     <Fragment>
+      <Head>
+        <title>{event.title} | NextJS Events</title>
+        <meta name="description" content={event.description} />
+      </Head>
       <EventSummary title={event.title} />
       <EventLogistics
         date={event.date}
