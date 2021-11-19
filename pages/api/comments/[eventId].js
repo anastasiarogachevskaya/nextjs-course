@@ -1,19 +1,27 @@
-import { MongoClient } from 'mongodb';
 import validateEmail from '../../../utils/validateEmail';
+import { connectDatabase, insertDocument, getAllCommentsByEvent } from '../../../utils/connectDatabase';
 
 async function handler(req, res) {
   const eventId = req.query.eventId;
-  const client = await MongoClient.connect('mongodb+srv://mtgAdmin:Zqm55Dqub9Uxa5jc@cluster0.fkmmx.mongodb.net/nextjs_project?retryWrites=true&w=majority');
-  const db = client.db('nextjs_project');
+  let client;
+  try {
+    client = await connectDatabase();
+  } catch (error) {
+    res.status(500).json({ message: 'Connecting to the database failed' });
+    return;
+  }
 
   if (req.method === 'GET') {
-    const comments = await db
-      .collection('comments')
-      .find({ eventId })
-      .sort({ _id: -1 })
-      .toArray();
+    let comments;
+    try {
+      comments = await getAllCommentsByEvent(client, 'comments', eventId);
+      res.status(200).json({ comments: comments });
 
-    res.status(200).json({ comments: comments });
+    } catch (error) {
+      res.status(500).json({ message: 'Getting comments fails' });
+      return;
+    }
+    client.close();
   }
 
   if (req.method === 'POST') {
@@ -30,12 +38,15 @@ async function handler(req, res) {
       eventId
     }
 
-    const result = await db.collection('comments').insertOne(newComment);
-    console.log(result);
+    let result;
 
-    newComment.id = result.insertedId;
-
-    res.status(201).json({ message: 'Added comment', comment: newComment });
+    try {
+      result = await insertDocument(client, 'comments', newComment);
+      newComment._id = result.insertedId;
+      res.status(201).json({ message: 'Added comment', comment: newComment });
+    } catch (error) {
+      res.status(500).json({ message: 'Inserting document failed' });
+    }
   }
   client.close();
 }
